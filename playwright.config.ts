@@ -1,0 +1,12 @@
+import 'dotenv/config';
+import { defineConfig } from '@playwright/test';
+import { env } from './src/utils/env';
+
+export default defineConfig({
+  use: {
+    baseURL: env.baseUrl,
+    viewport: { width: 1280, height: 720 },
+    headless: env.headless,
+    trace: 'on-first-retry',
+  },
+});
