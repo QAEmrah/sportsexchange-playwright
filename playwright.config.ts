@@ -3,6 +3,11 @@ import { defineConfig } from '@playwright/test';
 import { env } from './src/utils/env';
 
 export default defineConfig({
+  reporter: [
+    ['list'],
+    ['junit', { outputFile: 'test-results/junit.xml' }],
+    ['html', { open: 'never' }],
+  ],
   use: {
     baseURL: env.baseUrl,
     viewport: { width: 1280, height: 720 },
