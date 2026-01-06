@@ -14,5 +14,6 @@ export default defineConfig({
     viewport: { width: 1280, height: 720 },
     headless: env.headless,
     trace: 'on-first-retry',
+    video: 'retain-on-failure', // or 'on' / 'off' / 'on-first-retry'
   },
 });
