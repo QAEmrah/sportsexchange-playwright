@@ -6,6 +6,7 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['junit', { outputFile: 'test-results/junit.xml' }],
+    ['allure-playwright', { outputFolder: 'allure-results' }],
     ['html', { open: 'never' }],
   ],
   use: {
