@@ -49,7 +49,7 @@ export class LoginPage extends BasePage {
     await this.emailOrUsernameInput.fill(email);
     await this.continueButton.click();
     await this.passwordInput.fill(password);
-    await this.continueButton.click();
+    // await this.continueButton.click();
   }
 
   async assertNavigation() {
@@ -78,5 +78,38 @@ export class LoginPage extends BasePage {
 
   assertBadCredentials() {
     return expect(this.badCredentials).toBeVisible();
+  }
+
+  async clickAndAssertApiResponse(
+    trigger: Locator,
+    urlContains: string,
+    expectedStatus: number,
+    expectedSuccess: boolean
+  ) {
+    const responsePromise = this.page.waitForResponse(
+      (response) =>
+        response.url().includes(urlContains) &&
+        response.request().method() === 'POST'
+    );
+
+    await trigger.click();
+
+    const response = await responsePromise;
+
+    const responseUrl = response.url();
+    const status = response.status();
+    const body = await response.json();
+
+    console.log('API URL:', responseUrl);
+    console.log('Status:', status);
+    console.log('Response body:', JSON.stringify(body, null, 2));
+
+    expect(status).toBe(expectedStatus);
+
+    expect(body).toEqual(
+      expect.objectContaining({
+        success: expectedSuccess,
+      })
+    );
   }
 }
