@@ -32,7 +32,7 @@ export class LoginPage extends BasePage {
   }
 
   get badCredentials(): Locator {
-    return this.page.getByText('Bad credentialsaaa');
+    return this.page.getByText('Bad credentials');
   }
 
   // Methods
