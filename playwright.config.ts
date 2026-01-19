@@ -4,6 +4,8 @@ import { env } from './src/utils/env';
 
 export default defineConfig({
   retries: process.env.CI ? 2 : 0,
+  // fullyParallel: true,
+  // workers: process.env.CI ? 2 : undefined,
 
   reporter: [
     ['list'],

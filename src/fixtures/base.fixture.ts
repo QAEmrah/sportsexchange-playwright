@@ -2,8 +2,14 @@ import { test as base, expect } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
 import { MainPage } from '../pages/MainPage';
 import { generateRandomEmail, generateRandomPassword } from '../utils/testData';
+import { env } from '../utils/env';
 
-type TestUser = {
+type LoginTestUser = {
+  email: string;
+  password: string;
+};
+
+type SignupTestUser = {
   email: string;
   password: string;
 };
@@ -11,7 +17,8 @@ type TestUser = {
 type Pages = {
   loginPage: LoginPage;
   mainPage: MainPage;
-  testUser: TestUser;
+  loginTestUser: LoginTestUser;
+  signupTestUser: SignupTestUser;
 };
 
 export const test = base.extend<Pages>({
@@ -23,12 +30,17 @@ export const test = base.extend<Pages>({
     await use(new MainPage(page));
   },
 
-  testUser: async ({}, use) => {
+  loginTestUser: async ({}, use) => {
     await use({
-      email: generateRandomEmail('yopmail.com'),
-      password: generateRandomPassword(),
+      email: env.testEmail,
+      password: env.testPassword,
     });
   },
+  signupTestUser: async ({}, use) => {
+    const email = generateRandomEmail();
+    const password = generateRandomPassword();
+    await use({ email, password });
+  }
 });
 
 export { expect };

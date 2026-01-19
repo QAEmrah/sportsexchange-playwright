@@ -7,9 +7,24 @@ test.describe('Login flow', () => {
     await loginPage.acceptImportantNoticeIfPresent();
   });
 
-  test('login flow works', async ({ loginPage, testUser }) => {
+  test('Login with valid credentials', async ({ loginPage, loginTestUser }) => {
     await loginPage.loginButton.click();
-    await loginPage.login(testUser.email, testUser.password);
+    await loginPage.login(loginTestUser.email, loginTestUser.password);
+    await loginPage.clickAndAssertApiResponse(
+      loginPage.continueButton,
+      '/papi/coil-web/rest/login',
+      200
+    );
+
+    await loginPage.assertSuccessfulLogin();
+  });
+
+  test('Signup flow does not work without affiliate link', async ({
+    loginPage,
+    signupTestUser,
+  }) => {
+    await loginPage.loginButton.click();
+    await loginPage.login(signupTestUser.email, signupTestUser.password);
     await loginPage.clickAndAssertApiResponse(
       loginPage.continueButton,
       '/papi/coil-web/rest/login',

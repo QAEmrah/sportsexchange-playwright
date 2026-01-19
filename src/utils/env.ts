@@ -6,8 +6,16 @@ function required(name: string): string {
   return value;
 }
 
+function optionalBoolean(name: string, fallback: boolean): boolean {
+  const v = process.env[name];
+  if (!v) return fallback;
+  return v.toLowerCase() === 'true';
+}
+
 export const env = {
   baseUrl: required('BASE_URL'),
-  environment: process.env.ENV ?? 'local',
-  headless: process.env.HEADLESS === 'true',
+  headless: optionalBoolean('HEADLESS', false),
+
+  testEmail: required('TEST_EMAIL'),
+  testPassword: required('TEST_PASSWORD'),
 };

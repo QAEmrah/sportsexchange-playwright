@@ -11,28 +11,48 @@ export class LoginPage extends BasePage {
   get title(): Locator {
     return this.page.locator('h1');
   }
-
   get passwordInput(): Locator {
     return this.page.locator('#dlab-password');
   }
-
   get continueButton(): Locator {
     return this.page.getByRole('button', { name: /^continue$/i });
   }
-
   get loginButton(): Locator {
     return this.page.locator('nav').getByRole('button', { name: /log in/i });
   }
-
   get emailOrUsernameInput(): Locator {
     return this.page.getByPlaceholder(/email or username/i);
   }
   get understandButton(): Locator {
     return this.page.getByRole('button', { name: /^i understand$/i });
   }
-
   get badCredentials(): Locator {
     return this.page.getByText('Bad credentials');
+  }
+  private get nav(): Locator {
+    return this.page.getByRole('navigation');
+  }
+
+  get depositButton(): Locator {
+    return this.page.getByRole('button', { name: /^deposit$/i });
+  }
+
+  get fantasyPick5Button(): Locator {
+    return this.page.locator('a[href="/fantasypick5"]:visible');
+  }
+
+ get portfolioButton(): Locator {
+  return this.nav.getByRole('link', { name: /^portfolio$/i });
+}
+
+
+ get availableWalletButton(): Locator {
+  return this.nav.getByRole('link', { name: /^available$/i });
+}
+
+
+  get preBoughtButton(): Locator {
+    return this.nav.getByRole('link', { name: /^pre-bought$/i });
   }
 
   // Methods
@@ -54,7 +74,7 @@ export class LoginPage extends BasePage {
 
   async assertNavigation() {
     await expect(this.page).toHaveURL(
-      'https://app.thesportexchange.com/dashboard'
+      'https://app.test.pandafantasy.id/dashboard'
     );
   }
 
@@ -80,11 +100,19 @@ export class LoginPage extends BasePage {
     return expect(this.badCredentials).toBeVisible();
   }
 
+  async assertSuccessfulLogin() {
+    await expect(this.depositButton).toBeVisible({ timeout: 30_000 });
+    await expect(this.fantasyPick5Button).toBeVisible();
+    await expect(this.portfolioButton).toBeVisible();
+    await expect(this.availableWalletButton).toBeVisible();
+    await expect(this.preBoughtButton).toBeVisible();
+  }
+
   async clickAndAssertApiResponse(
     trigger: Locator,
     urlContains: string,
     expectedStatus: number,
-    expectedSuccess: boolean
+    expectedSuccess?: boolean
   ) {
     const responsePromise = this.page.waitForResponse(
       (response) =>
@@ -98,18 +126,36 @@ export class LoginPage extends BasePage {
 
     const responseUrl = response.url();
     const status = response.status();
-    const body = await response.json();
+
+    const raw = await response.text();
+    let body: unknown = null;
+
+    if (raw && raw.trim().length > 0) {
+      try {
+        body = JSON.parse(raw);
+      } catch {
+        body = raw; // not JSON (html/text)
+      }
+    }
 
     console.log('API URL:', responseUrl);
     console.log('Status:', status);
-    console.log('Response body:', JSON.stringify(body, null, 2));
+    console.log('Response body(raw):', raw);
+    console.log(
+      'Response body(parsed):',
+      typeof body === 'string' ? body : JSON.stringify(body, null, 2)
+    );
 
     expect(status).toBe(expectedStatus);
 
-    expect(body).toEqual(
-      expect.objectContaining({
-        success: expectedSuccess,
-      })
-    );
+    if (expectedSuccess !== undefined) {
+      expect(body).toEqual(
+        expect.objectContaining({
+          success: expectedSuccess,
+        })
+      );
+    }
+
+    return { status, url: responseUrl, raw, body };
   }
 }
